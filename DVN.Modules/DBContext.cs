@@ -50,7 +50,7 @@ namespace DVN.Modules
                 cmd.Parameters.AddWithValue("@p_" + i.ToString(), obj[i]);
             }
         }
-        public void BeginTransact(Action<SqlCommand> action)
+        private void BeginTransact(Action<SqlCommand> action)
         {
             SqlConnection conn = new SqlConnection(GetConnectionString());
             conn.Open();
@@ -87,7 +87,7 @@ namespace DVN.Modules
             });
             return result;
         }
-        public List<T> ExecuteReader<T>(string query, params object[] obj) where T : class, new()
+        public List<T> ExecuteReader<T>(string query, params object[] obj) where T : class, new()//Attribute for avoid normal data type
         {
             List<T> list = new List<T>();
             BeginTransact(cmd =>
