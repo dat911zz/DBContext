@@ -116,12 +116,12 @@ namespace DVN.Modules
         }
         public SqlDataAdapter GetAdapter(string selectCommandText)
         {
-            SqlDataAdapter sqlDataAdapter1 = new SqlDataAdapter();
+            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter();
             BeginTransact(cmd => {
                 cmd.CommandText = selectCommandText;
-                sqlDataAdapter1.SelectCommand = cmd;
+                sqlDataAdapter.SelectCommand = cmd;
             });
-            return sqlDataAdapter1;
+            return sqlDataAdapter;
         }
         #endregion
     }
