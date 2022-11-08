@@ -13,7 +13,7 @@ namespace DVN.Modules
 {
     public class DBContext
     {
-        #region Create Instance (Singleton pattern)
+        #region Initialize Instance (Singleton pattern)
         private DBContext() { }
         private static DBContext instance;
         public static DBContext Instance
