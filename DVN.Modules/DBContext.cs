@@ -50,6 +50,13 @@ namespace DVN.Modules
                 cmd.Parameters.AddWithValue("@p_" + i.ToString(), obj[i]);
             }
         }
+        public void AddParameters(ref SqlCommand cmd, Dictionary<string, object> mapParams)
+        {
+            foreach (var param in mapParams)
+            {
+                cmd.Parameters.AddWithValue(param.Key, param.Value);
+            }
+        }
         private void BeginTransact(Action<SqlCommand> action)
         {
             SqlConnection conn = new SqlConnection(GetConnectionString());
