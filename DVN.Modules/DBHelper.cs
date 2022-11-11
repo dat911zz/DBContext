@@ -1,4 +1,4 @@
-﻿///Author: Vu Dat
+﻿///Author: Vu Dat and CVT
 ///Discription: This module using for connect and execute query into database 
 ///but it's safer by using parameters for prevent SQL Injection
 using System;
