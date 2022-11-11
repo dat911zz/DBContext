@@ -3,6 +3,7 @@
 ///but it's safer by using parameters for prevent SQL Injection
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
@@ -11,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace DVN.Modules
 {
-    public class DBContext
+    public class DBHelper
     {
         #region Initialize Instance (Singleton pattern)
-        private DBContext() { }
-        private static DBContext instance;
-        public static DBContext Instance
+        private DBHelper() { }
+        private static DBHelper instance;
+        public static DBHelper Instance
         {
-            get => instance ?? new DBContext();
+            get => instance ?? new DBHelper();
             private set => instance = value;
         }
         #endregion
@@ -80,6 +81,20 @@ namespace DVN.Modules
             });
             return result;
         }
+        public int ExceuteNonQuery(string query, Dictionary<string, object> mapParams)
+        {
+            int result = 0;
+            BeginTransact(cmd =>
+            {
+                cmd.CommandText = query;
+                if (mapParams != null)
+                {
+                    AddParameters(ref cmd, mapParams);
+                }
+                result = cmd.ExecuteNonQuery();
+            });
+            return result;
+        }
         public int ExceuteScalar(string query, params object[] obj)
         {
             int result = 0;
@@ -89,6 +104,20 @@ namespace DVN.Modules
                 if (obj != null)
                 {
                     AddParameters(ref cmd, obj);
+                }
+                result = (int)cmd.ExecuteScalar();
+            });
+            return result;
+        }
+        public int ExceuteScalar(string query, Dictionary<string, object> mapParams)
+        {
+            int result = 0;
+            BeginTransact(cmd =>
+            {
+                cmd.CommandText = query;
+                if (mapParams != null)
+                {
+                    AddParameters(ref cmd, mapParams);
                 }
                 result = (int)cmd.ExecuteScalar();
             });
@@ -121,6 +150,33 @@ namespace DVN.Modules
             });
             return list;
         }
+        public List<T> ExecuteReader<T>(string query, Dictionary<string, object> mapParams) where T : class, new()
+        {
+            List<T> list = new List<T>();
+            BeginTransact(cmd =>
+            {
+                cmd.CommandText = query;
+                if (mapParams != null)
+                {
+                    AddParameters(ref cmd, mapParams);
+                }
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    T item = new T();
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        PropertyInfo propertyInfo = typeof(T).GetProperty(reader.GetName(i));
+                        if (propertyInfo != null)
+                        {
+                            propertyInfo.SetValue(item, reader.GetValue(i));
+                        }
+                    }
+                    list.Add(item);
+                }
+            });
+            return list;
+        }
         public SqlDataAdapter GetAdapter(string selectCommandText)
         {
             SqlDataAdapter sqlDataAdapter = new SqlDataAdapter();
@@ -129,6 +185,16 @@ namespace DVN.Modules
                 sqlDataAdapter.SelectCommand = cmd;
             });
             return sqlDataAdapter;
+        }
+        public DataSet GetDataSet(SqlDataAdapter sqlDataAdapter)
+        {
+            DataSet dt = new DataSet();
+            return sqlDataAdapter.Fill(dt) != 0 ? dt : null;
+        }
+        public DataSet GetDataSet(string selectCommandText)
+        {
+            DataSet dt = new DataSet();
+            return GetAdapter(selectCommandText).Fill(dt) != 0 ? dt : null;
         }
         #endregion
     }
