@@ -14,16 +14,18 @@ namespace DVN.Modules
 {
     public class DBHelper
     {
-        #region Initialize Instance (Singleton pattern)
+        private string conStr;
         private DBHelper() { }
+        #region Initialize Instance (Singleton pattern)
         private static DBHelper instance;
         public static DBHelper Instance
         {
             get => instance ?? new DBHelper();
             private set => instance = value;
         }
+        public string ConStr { get => conStr; set => conStr = value; }
         #endregion
-        #region Get Connection String
+        #region Get Connection String      
         public string GetConnectionString()
         {
             return @"Data Source=DESKTOP-GUE0JS7;Initial Catalog=QLSINHVIEN;Integrated Security=True";
@@ -195,6 +197,12 @@ namespace DVN.Modules
         {
             DataSet dt = new DataSet();
             return GetAdapter(selectCommandText).Fill(dt) != 0 ? dt : null;
+        }
+        public int Update(string sql, DataTable dt)
+        {
+            SqlDataAdapter da = new SqlDataAdapter(sql, conStr);
+            SqlCommandBuilder builder = new SqlCommandBuilder(da);//Accept Transaction
+            return da.Update(dt);//Update
         }
         #endregion
     }
