@@ -15,7 +15,7 @@ namespace DVN.Modules
     public class DBHelper
     {
         private string conStr;
-        private DBHelper() { }
+        public DBHelper() { }
         #region Initialize Instance (Singleton pattern)
         private static DBHelper instance;
         public static DBHelper Instance
