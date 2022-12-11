@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace DVN.Modules
 {
@@ -198,11 +199,45 @@ namespace DVN.Modules
             DataSet dt = new DataSet();
             return GetAdapter(selectCommandText).Fill(dt) != 0 ? dt : null;
         }
-        public int Update(string sql, DataTable dt)
+        public void FillData(DataSet dataSet, string selectCmd, string tableName)
         {
-            SqlDataAdapter da = new SqlDataAdapter(sql, conStr);
-            SqlCommandBuilder builder = new SqlCommandBuilder(da);//Accept Transaction
-            return da.Update(dt);//Update
+            SqlDataAdapter adapter = new SqlDataAdapter(selectCmd, ConStr);
+            adapter.Fill(dataSet, tableName);
+        }
+        public void LoadDataIntoCbo(ComboBox cbo, DataSet dataSet, string selectCmd, string tableName, string display, string value)
+        {
+            FillData(dataSet, selectCmd, tableName);
+            cbo.DataSource = dataSet.Tables[tableName];
+            cbo.DisplayMember = display;
+            cbo.ValueMember = value;
+        }
+        public void LoadDataIntoDgv(DataGridView dgv, DataSet dataSet, string selectCmd, string tableName)
+        {
+            FillData(dataSet, selectCmd, tableName);
+            dgv.DataSource = dataSet.Tables[tableName];
+        }
+        public int Update(DataSet ds, string selectCmd, string tableName)
+        {
+            try
+            {
+                SqlDataAdapter adapter = new SqlDataAdapter(selectCmd, ConStr);
+                SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(adapter);
+                return adapter.Update(ds, tableName);
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+
+        }
+        public void SetPrimaryKey(ref DataTable dt, params object[] mapKeys)
+        {
+            DataColumn[] keys = new DataColumn[mapKeys.Length];
+            for (int i = 0; i < mapKeys.Length; i++)
+            {
+                keys[i] = dt.Columns[mapKeys[i].ToString()];
+            }
+            dt.PrimaryKey = keys;
         }
         #endregion
     }
