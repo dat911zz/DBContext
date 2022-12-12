@@ -217,8 +217,9 @@ namespace DVN.Modules
             FillData(dataSet, tableName);
             dgv.DataSource = dataSet.Tables[tableName];
         }
-        public int Update(DataSet ds, string selectCmd, string tableName)
+        public int Update(DataSet ds, string tableName)
         {
+            string selectCmd = "Select * from " + tableName;
             try
             {
                 SqlDataAdapter adapter = new SqlDataAdapter(selectCmd, ConStr);
