@@ -199,21 +199,22 @@ namespace DVN.Modules
             DataSet dt = new DataSet();
             return GetAdapter(selectCommandText).Fill(dt) != 0 ? dt : null;
         }
-        public void FillData(DataSet dataSet, string selectCmd, string tableName)
+        public void FillData(DataSet dataSet, string tableName)
         {
+            string selectCmd = "Select * from " + tableName;
             SqlDataAdapter adapter = new SqlDataAdapter(selectCmd, ConStr);
             adapter.Fill(dataSet, tableName);
         }
-        public void LoadDataIntoCbo(ComboBox cbo, DataSet dataSet, string selectCmd, string tableName, string display, string value)
+        public void LoadDataIntoCbo(ComboBox cbo, DataSet dataSet, string tableName, string display, string value)
         {
-            FillData(dataSet, selectCmd, tableName);
+            FillData(dataSet, tableName);
             cbo.DataSource = dataSet.Tables[tableName];
             cbo.DisplayMember = display;
             cbo.ValueMember = value;
         }
-        public void LoadDataIntoDgv(DataGridView dgv, DataSet dataSet, string selectCmd, string tableName)
+        public void LoadDataIntoDgv(DataGridView dgv, DataSet dataSet, string tableName)
         {
-            FillData(dataSet, selectCmd, tableName);
+            FillData(dataSet, tableName);
             dgv.DataSource = dataSet.Tables[tableName];
         }
         public int Update(DataSet ds, string selectCmd, string tableName)
@@ -238,6 +239,16 @@ namespace DVN.Modules
                 keys[i] = dt.Columns[mapKeys[i].ToString()];
             }
             dt.PrimaryKey = keys;
+        }
+        public void Delete(DataSet ds, string table, string x)
+        {
+            string selectCmd = "Select * from " + table;
+            DataRow dr = ds.Tables[table].Rows.Find(x);
+            if (dr != null)
+            {
+                dr.Delete();
+                SqlCommandBuilder cb = new SqlCommandBuilder(GetAdapter(selectCmd));
+            }
         }
         #endregion
     }
